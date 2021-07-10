@@ -71,7 +71,7 @@ with open("metrics.txt", 'w') as outfile:
 
 
 df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
-df_modelos.to_markdown("Modeleos.md",index=False)
+df_modelos.to_markdown("Modelos.md",index=False)
 
 
 
