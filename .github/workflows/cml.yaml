@@ -19,10 +19,15 @@ jobs:
       - name: Train model
         run: |
           # Your ML workflow goes here
-          pip install -r requerimentos.txt
+          pip install -r requerimenos.txt
           python train.py
+      - name: Write CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Post reports as comments in GitHub PRs
           echo "## RODANDO 1" 
-
+  
           echo "## Model metrics" > report.md
           echo "## RODANDO 2" 
           cat metrics.txt >> report.md
