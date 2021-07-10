@@ -20,6 +20,10 @@ def transform_dtype(df):
     Pclass_dummies = Pclass_onehot(df)
     df = df.join(Pclass_dummies)
     df.drop(['Name' ,'Ticket' ,'Cabin' ,'Embarked' ,'Sex' ,'Pclass'], axis=1, inplace=True)
+    try:
+        df["Fare"] = df["Fare"].fillna(0)
+    except:
+        pass
     return df
 
 # dealing with missing numbers
