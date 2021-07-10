@@ -29,7 +29,7 @@ def saving_columns(df):
     global colunas
     colunas= df.columns
     return df
-
+    
 
 
 get_drop_columns_with_null_valuse = FunctionTransformer(drop_columns_with_null_valuse,validate=False)

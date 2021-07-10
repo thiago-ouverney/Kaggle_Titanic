@@ -26,15 +26,13 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Post reports as comments in GitHub PRs
-          echo "## RODANDO 1" 
   
-          echo "## Model metrics" > report.md
-          echo "## RODANDO 2" 
-          cat metrics.txt >> report.md
-          echo "## RODANDO 3" 
-          echo "## Data viz" >> report.md
-          echo "## RODANDO 4" 
-          cml-publish feature_importance.png --md >> report.md
-          echo "## RODANDO 5" 
-          cml-send-comment report.md
-          echo "## RODANDO 6" 
+          echo " Métricas Modelos  " > report1.md
+          cat Modelos.md >> report1.md
+
+          echo " Data Vis  " > report2.md
+          cml-publish feature_importance.png --md >> report2.md
+
+          cml-send-comment report1.md
+          cml-send-comment report2.md
+

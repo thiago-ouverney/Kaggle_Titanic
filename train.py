@@ -50,17 +50,35 @@ pipe2 = Pipeline(memory=None,
                 )
 
 #Salvando Scores
-modelos_testados = {"RandomForestClassifier": {"Pipeline":pipe1},
-                    "LogisticRegression": {"Pipeline":pipe2}
+modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression"],
+                    "Pipeline":[pipe1,pipe2],
+                    "Score":[],
+                    "Steps":[]
                     }
-for modelo, desc in modelos_testados.items():
-    desc["Pipeline"].fit(x_train,y_train)
-    test_score = desc["Pipeline"].score(x_val,y_val)
-    with open("metrics.txt", 'a') as outfile:
-        outfile.write(f"{modelo}- Test Score: {test_score}")
-    desc["Score"] = test_score
+n = len(modelos_testados["Modelos"])
+with open("metrics.txt", 'w') as outfile:
+    for ref in range(n):
+        modelos_testados["Pipeline"][ref].fit(x_train,y_train)
+        test_score = modelos_testados["Pipeline"][ref].score(x_val,y_val)
+        nome_modelo = modelos_testados["Modelos"][ref]
+        steps = modelos_testados["Pipeline"][ref].named_steps.keys()
+        outfile.write(f"{nome_modelo}- Test Score: {test_score} - Steps: {steps}")
+        modelos_testados["Score"].append(test_score)
+        lista_steps = [step for step in steps]
+        modelos_testados["Steps"].append(lista_steps)
+
+
+
+
+
+df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
+df_modelos.to_markdown("Modelos.md",index=False)
+
+
+
 
 #Salvando submissão
+#Aqui devemos escolher nosso Pipe que iremos utilizar para nosso modelo
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
 predict_array = pipe1.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
