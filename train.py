@@ -49,9 +49,28 @@ pipe2 = Pipeline(memory=None,
                 verbose=False
                 )
 
+pipe3 = Pipeline(memory=None,
+                 steps = [
+                     ("Feature_Selection",get_transform_dtype),
+                     ("Null_Validate",get_dealing_null_values),
+                     ("Final_Columns",get_colums_names),
+                     ("RandomForest", RandomForestClassifier() )
+                 ],
+                verbose=False
+                )
+
+pipe4 = Pipeline(memory=None,
+                 steps = [
+                     ("Feature_Selection",get_transform_dtype),
+                     ("Null_Validate",get_dealing_null_values),
+                     ("Final_Columns",get_colums_names),
+                     ("RandomForest", LogisticRegression() )
+                 ],
+                verbose=False
+                )
 #Salvando Scores
-modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression"],
-                    "Pipeline":[pipe1,pipe2],
+modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression","RandomForestClassifier_v2","LogisticRegression"],
+                    "Pipeline":[pipe1,pipe2,pipe3, pipe4],
                     "Score":[],
                     "Steps":[]
                     }
