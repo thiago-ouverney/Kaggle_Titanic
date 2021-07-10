@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from Pipeline import get_drop_categorical_features,get_drop_columns_with_null_valuse,get_colums_names
+from Pipeline_mmansur import get_dealing_null_values, get_transform_dtype
 
 
 
