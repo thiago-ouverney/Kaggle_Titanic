@@ -4,7 +4,7 @@ from sklearn.preprocessing import FunctionTransformer
 
 #Model_Selection
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
-
+from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
 import warnings
@@ -39,12 +39,26 @@ pipe1 = Pipeline(memory=None,
                 verbose=False
                 )
 
+pipe2 = Pipeline(memory=None,
+                 steps = [
+                     ("Feature_Selection",get_drop_categorical_features),
+                     ("Null_Validate",get_drop_columns_with_null_valuse),
+                     ("Final_Columns",get_colums_names),
+                     ("RandomForest", LogisticRegression() )
+                 ],
+                verbose=False
+                )
 
 #Salvando Scores
-pipe1.fit(x_train,y_train)
-test_score = pipe1.score(x_val,y_val)
-with open("metrics.txt", 'w') as outfile:
-    outfile.write(f"Test Score: {test_score}")
+modelos_testados = {"RandomForestClassifier": {"Pipeline":pipe1},
+                    "LogisticRegression": {"Pipeline":pipe2}
+                    }
+for modelo, desc in modelos_testados.items():
+    desc["Pipeline"].fit(x_train,y_train)
+    test_score = desc["Pipeline"].score(x_val,y_val)
+    with open("metrics.txt", 'a') as outfile:
+        outfile.write(f"{modelo}- Test Score: {test_score}")
+    desc["Score"] = test_score
 
 #Salvando submissão
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
