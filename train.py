@@ -75,6 +75,7 @@ modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression","Ra
                     "Score":[],
                     "Steps":[]
                     }
+
 n = len(modelos_testados["Modelos"])
 with open("metrics.txt", 'w') as outfile:
     for ref in range(n):
