@@ -27,10 +27,9 @@ jobs:
         run: |
           # Post reports as comments in GitHub PRs
   
-          echo "## Model metrics" > report.md
-          cat metrics.txt >> report.md
+          echo "<p>----- Métricas Modelos -----<br>" > report.md
           cat Modelos.md >> report.md
-          echo "<p>----- DATA VIS -----<br>" >> report.md
+          echo "<p>----- DATA VIS For our Best Model -----<br>" >> report.md
 
           cml-publish feature_importance.png --md >> report.md
 
