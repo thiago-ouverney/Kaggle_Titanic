@@ -38,6 +38,11 @@ pipe1 = Pipeline(memory=None,
                 )
 
 
+#Salvando Scores
+pipe1.fit(x_train,y_train)
+test_score = pipe1.score(x_val,y_val)
+with open("metrics.txt", 'w') as outfile:
+    outfile.write(f"Test Score: {test_score}")
 
 #Salvando submissão
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
@@ -45,11 +50,6 @@ predict_array = pipe1.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
 predict_submission.to_csv("Predições/Predict1.csv",index=False)
 
-#Salvando Scores
-pipe1.fit(x_train,y_train)
-test_score = pipe1.score(x_val,y_val)
-with open("metrics.txt", 'w') as outfile:
-    outfile.write(f"Test Score: {test_score}")
 
 #Plotando grafico
 importances = pipe1.named_steps['RandomForest'].feature_importances_
