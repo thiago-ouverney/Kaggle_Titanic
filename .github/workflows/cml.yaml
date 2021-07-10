@@ -29,7 +29,6 @@ jobs:
   
           echo " Métricas Modelos  " > report1.md
           cat Modelos.md >> report1.md
-          echo " DATA VIS  " >> report1.md
 
           echo " Data Vis  " > report2.md
           cml-publish feature_importance.png --md >> report2.md
