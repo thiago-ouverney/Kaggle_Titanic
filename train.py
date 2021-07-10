@@ -88,6 +88,11 @@ with open("metrics.txt", 'w') as outfile:
         modelos_testados["Steps"].append(lista_steps)
 
 
+index_max = modelos_testados["Score"].index(max(modelos_testados["Score"]))
+best_pipe = modelos_testados["Pipeline"][index_max]
+best_pipe_name = modelos_testados["Modelos"][index_max]
+
+
 df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
 df_modelos.to_markdown("Modelos.md",index=False)
 
@@ -97,6 +102,7 @@ df_modelos.to_markdown("Modelos.md",index=False)
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
 predict_array = pipe3.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
+
 predict_submission.to_csv("Predições/Predict2.csv",index=False)
 
 
