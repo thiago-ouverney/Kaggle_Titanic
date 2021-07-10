@@ -16,6 +16,8 @@ import seaborn as sns
 
 from Pipeline import get_drop_categorical_features,get_drop_columns_with_null_valuse,get_colums_names
 
+
+
 df = pd.read_csv("Dados/train.csv",index_col=0)
 x = df.drop("Survived",axis=1).copy()
 y = df.Survived
@@ -53,6 +55,7 @@ predict_submission.to_csv("Predições/Predict1.csv",index=False)
 
 #Plotando grafico
 importances = pipe1.named_steps['RandomForest'].feature_importances_
+colunas = ['Pclass', 'SibSp', 'Parch']
 # Colunas vai vir da var global em get_colum_names
 feature_df = pd.DataFrame(list(zip(colunas, importances)), columns = ["feature","importance"])
 feature_df = feature_df.sort_values(by='importance', ascending=False,)
