@@ -14,26 +14,12 @@ warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from Pipeline import get_drop_categorical_features,get_drop_columns_with_null_valuse,get_colums_names
 
 df = pd.read_csv("Dados/train.csv",index_col=0)
 x = df.drop("Survived",axis=1).copy()
 y = df.Survived
 
-def drop_columns_with_null_valuse(df):
-    df.dropna(axis=1,inplace=True)
-    try:
-        df.drop("Fare",axis=1,inplace=True)
-    except:
-        pass
-    return df
-
-def drop_categorical_features(df):
-    df = df.select_dtypes(exclude="object")
-    return df
-
-
-get_drop_columns_with_null_valuse = FunctionTransformer(drop_columns_with_null_valuse,validate=False)
-get_drop_categorical_features = FunctionTransformer(drop_categorical_features,validate=False)
 
 
 x_train, x_val, y_train, y_val = train_test_split(x,y,
@@ -45,27 +31,33 @@ pipe1 = Pipeline(memory=None,
                  steps = [
                      ("Feature_Selection",get_drop_categorical_features),
                      ("Null_Validate",get_drop_columns_with_null_valuse),
+                     ("Final_Columns",get_colums_names),
                      ("RandomForest", RandomForestClassifier() )
                  ],
                 verbose=False
                 )
 
 
+
+#Salvando submissão
+x_test = pd.read_csv("Dados/test.csv",index_col = 0)
+predict_array = pipe1.predict(x_test)
+predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
+predict_submission.to_csv("Predições/Predict1.csv",index=False)
+
+#Salvando Scores
 pipe1.fit(x_train,y_train)
 test_score = pipe1.score(x_val,y_val)
 with open("metrics.txt", 'w') as outfile:
     outfile.write(f"Test Score: {test_score}")
 
-print("OK")
-
-
+#Plotando grafico
 importances = pipe1.named_steps['RandomForest'].feature_importances_
-labels = x_train.columns
-feature_df = pd.DataFrame(list(zip(labels, importances)), columns = ["feature","importance"])
+# Colunas vai vir da var global em get_colum_names
+feature_df = pd.DataFrame(list(zip(colunas, importances)), columns = ["feature","importance"])
 feature_df = feature_df.sort_values(by='importance', ascending=False,)
 
 
-# image formatting
 axis_fs = 18 #fontsize
 title_fs = 22 #fontsize
 sns.set(style="whitegrid")
