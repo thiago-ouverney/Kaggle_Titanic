@@ -19,7 +19,7 @@ jobs:
       - name: Train model
         run: |
           # Your ML workflow goes here
-          pip install -r requerimenos.txt
+          pip install -r requerimentos.txt
           python train.py
       - name: Write CML report
         env:
