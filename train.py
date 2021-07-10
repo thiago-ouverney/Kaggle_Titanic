@@ -53,6 +53,7 @@ test_score = pipe1.score(x_val,y_val)
 with open("metrics.txt", 'w') as outfile:
     outfile.write(f"Test Score: {test_score}")
 
+print("OK")
 
 
 
