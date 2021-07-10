@@ -67,6 +67,8 @@ with open("metrics.txt", 'w') as outfile:
         modelos_testados["Steps"].append(steps)
 
 
+
+
 df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
 df_modelos.to_csv("DataFrame_Modelos.csv",index=False)
 
