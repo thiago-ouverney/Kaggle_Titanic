@@ -11,6 +11,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 df = pd.read_csv("Dados/train.csv",index_col=0)
 x = df.drop("Survived",axis=1).copy()
@@ -56,4 +59,23 @@ with open("metrics.txt", 'w') as outfile:
 print("OK")
 
 
+importances = pipe1.named_steps['RandomForest'].feature_importances_
+labels = x_train.columns
+feature_df = pd.DataFrame(list(zip(labels, importances)), columns = ["feature","importance"])
+feature_df = feature_df.sort_values(by='importance', ascending=False,)
+
+
+# image formatting
+axis_fs = 18 #fontsize
+title_fs = 22 #fontsize
+sns.set(style="whitegrid")
+
+ax = sns.barplot(x="importance", y="feature", data=feature_df)
+ax.set_xlabel('Importance',fontsize = axis_fs)
+ax.set_ylabel('Feature', fontsize = axis_fs)#ylabel
+ax.set_title('Random forest\nfeature importance', fontsize = title_fs)
+
+plt.tight_layout()
+plt.savefig("feature_importance.png",dpi=120)
+plt.close()
 
