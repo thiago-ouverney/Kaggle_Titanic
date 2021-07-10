@@ -64,11 +64,18 @@ with open("metrics.txt", 'w') as outfile:
         steps = modelos_testados["Pipeline"][ref].named_steps.keys()
         outfile.write(f"{nome_modelo}- Test Score: {test_score} - Steps: {steps}")
         modelos_testados["Score"].append(test_score)
-        modelos_testados["Steps"].append(steps)
+        lista_steps = [step for step in steps]
+        modelos_testados["Steps"].append(lista_steps)
+
+
+
 
 
 df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
-df_modelos.to_csv("DataFrame_Modelos.csv",index=False)
+df_modelos.to_markdown("Modelos.md",index=False)
+
+
+
 
 #Salvando submissão
 #Aqui devemos escolher nosso Pipe que iremos utilizar para nosso modelo

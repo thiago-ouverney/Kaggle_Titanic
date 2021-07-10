@@ -26,15 +26,13 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Post reports as comments in GitHub PRs
-          echo "## RODANDO 1" 
   
-          echo "## Model metrics" > report.md
-          cat metrics.txt >> report.md
-          dvc plots --target DataFrame_Modelos.csv > vega.json
-          vl2png vega.json -s 1.5 | cml-publish --md >> report.md
-          echo "## Data viz" >> report.md
+          echo " Métricas Modelos  " > report1.md
+          cat Modelos.md >> report1.md
 
-          cml-publish feature_importance.png --md >> report.md
+          echo " Data Vis  " > report2.md
+          cml-publish feature_importance.png --md >> report2.md
 
-          cml-send-comment report.md
+          cml-send-comment report1.md
+          cml-send-comment report2.md
 
