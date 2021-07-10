@@ -32,40 +32,40 @@ x_train, x_val, y_train, y_val = train_test_split(x,y,
 
 pipe1 = Pipeline(memory=None,
                  steps = [
-                     ("Feature_Selection",get_drop_categorical_features),
-                     ("Null_Validate",get_drop_columns_with_null_valuse),
-                     ("Final_Columns",get_colums_names),
-                     ("RandomForest", RandomForestClassifier() )
+                     ("Feature_Selection: get_drop_categorical_features",get_drop_categorical_features),
+                     ("Null_Validate: get_drop_columns_with_null_valuse",get_drop_columns_with_null_valuse),
+                     ("Final_Columns: get_colums_names",get_colums_names),
+                     ("Model: RandomForest", RandomForestClassifier() )
                  ],
                 verbose=False
                 )
 
 pipe2 = Pipeline(memory=None,
                  steps = [
-                     ("Feature_Selection",get_drop_categorical_features),
-                     ("Null_Validate",get_drop_columns_with_null_valuse),
-                     ("Final_Columns",get_colums_names),
-                     ("RandomForest", LogisticRegression() )
+                     ("Feature_Selection: get_drop_categorical_features",get_drop_categorical_features),
+                     ("Null_Validate: get_drop_columns_with_null_valuse",get_drop_columns_with_null_valuse),
+                     ("Final_Columns: get_colums_names",get_colums_names),
+                     ("Model: LogisticRegression", LogisticRegression() )
                  ],
                 verbose=False
                 )
 
 pipe3 = Pipeline(memory=None,
                  steps = [
-                     ("Feature_Selection",get_transform_dtype),
-                     ("Null_Validate",get_dealing_null_values),
-                     ("Final_Columns",get_colums_names),
-                     ("RandomForest", RandomForestClassifier() )
+                     ("Feature_Selection:get_transform_dtype",get_transform_dtype),
+                     ("Null_Validate:get_dealing_null_values",get_dealing_null_values),
+                     ("Final_Columns:get_colums_names",get_colums_names),
+                     ("Model:RandomForest", RandomForestClassifier() )
                  ],
                 verbose=False
                 )
 
 pipe4 = Pipeline(memory=None,
                  steps = [
-                     ("Feature_Selection",get_transform_dtype),
-                     ("Null_Validate",get_dealing_null_values),
-                     ("Final_Columns",get_colums_names),
-                     ("RandomForest", LogisticRegression() )
+                     ("Feature_Selection:get_transform_dtype",get_transform_dtype),
+                     ("Null_Validate:get_dealing_null_values",get_dealing_null_values),
+                     ("Final_Columns:get_colums_names",get_colums_names),
+                     ("Model:LogisticRegression", LogisticRegression() )
                  ],
                 verbose=False
                 )
@@ -100,9 +100,9 @@ df_modelos.to_markdown("Modelos.md",index=False)
 #Salvando submissão
 #Aqui devemos escolher nosso Pipe que iremos utilizar para nosso modelo
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
-predict_array = pipe1.predict(x_test)
+predict_array = pipe3.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
-predict_submission.to_csv("Predições/Predict1.csv",index=False)
+predict_submission.to_csv("Predições/Predict2.csv",index=False)
 
 
 #Plotando grafico
