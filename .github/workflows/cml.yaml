@@ -29,12 +29,11 @@ jobs:
           echo "## RODANDO 1" 
   
           echo "## Model metrics" > report.md
-          echo "## RODANDO 2" 
           cat metrics.txt >> report.md
-          echo "## RODANDO 3" 
+          cat DataFrame_Modelos.csv >> report.md
           echo "## Data viz" >> report.md
-          echo "## RODANDO 4" 
+
           cml-publish feature_importance.png --md >> report.md
-          echo "## RODANDO 5" 
+
           cml-send-comment report.md
-          echo "## RODANDO 6" 
+
