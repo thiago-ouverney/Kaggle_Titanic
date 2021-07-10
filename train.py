@@ -67,7 +67,9 @@ with open("metrics.txt", 'w') as outfile:
         lista_steps = [step for step in steps]
         modelos_testados["Steps"].append(lista_steps)
 
-
+index_max = modelos_testados["Score"].index(max(modelos_testados["Score"]))
+best_pipe = modelos_testados["Pipeline"][index_max]
+best_pipe_name = modelos_testados["Modelos"][index_max]
 
 
 
@@ -84,27 +86,27 @@ predict_array = pipe1.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
 predict_submission.to_csv("Predições/Predict1.csv",index=False)
 
-
-#Plotando grafico
-importances = pipe1.named_steps['RandomForest'].feature_importances_
-colunas = ['Pclass', 'SibSp', 'Parch']
-# Colunas vai vir da var global em get_colum_names
-feature_df = pd.DataFrame(list(zip(colunas, importances)), columns = ["feature","importance"])
-feature_df = feature_df.sort_values(by='importance', ascending=False,)
-
-
-axis_fs = 18 #fontsize
-title_fs = 22 #fontsize
-sns.set(style="whitegrid")
-
-ax = sns.barplot(x="importance", y="feature", data=feature_df)
-ax.set_xlabel('Importance',fontsize = axis_fs)
-ax.set_ylabel('Feature', fontsize = axis_fs)#ylabel
-ax.set_title('Random forest\nfeature importance', fontsize = title_fs)
-
-plt.tight_layout()
-plt.savefig("feature_importance.png",dpi=120)
-plt.close()
+#
+# #Plotando grafico
+# importances = pipe1.named_steps['RandomForest'].feature_importances_
+# colunas = ['Pclass', 'SibSp', 'Parch']
+# # Colunas vai vir da var global em get_colum_names
+# feature_df = pd.DataFrame(list(zip(colunas, importances)), columns = ["feature","importance"])
+# feature_df = feature_df.sort_values(by='importance', ascending=False,)
+#
+#
+# axis_fs = 18 #fontsize
+# title_fs = 22 #fontsize
+# sns.set(style="whitegrid")
+#
+# ax = sns.barplot(x="importance", y="feature", data=feature_df)
+# ax.set_xlabel('Importance',fontsize = axis_fs)
+# ax.set_ylabel('Feature', fontsize = axis_fs)#ylabel
+# ax.set_title('Random forest\nfeature importance', fontsize = title_fs)
+#
+# plt.tight_layout()
+# plt.savefig("feature_importance.png",dpi=120)
+# plt.close()
 
 print("FINALIZADO!!!")
 
