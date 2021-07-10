@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from Pipeline import get_drop_categorical_features,get_drop_columns_with_null_valuse,get_colums_names
+from Pipeline_mmansur import get_dealing_null_values, get_transform_dtype
 
 
 
@@ -31,27 +32,46 @@ x_train, x_val, y_train, y_val = train_test_split(x,y,
 
 pipe1 = Pipeline(memory=None,
                  steps = [
-                     ("Feature_Selection",get_drop_categorical_features),
-                     ("Null_Validate",get_drop_columns_with_null_valuse),
-                     ("Final_Columns",get_colums_names),
-                     ("RandomForest", RandomForestClassifier() )
+                     ("Feature_Selection: get_drop_categorical_features",get_drop_categorical_features),
+                     ("Null_Validate: get_drop_columns_with_null_valuse",get_drop_columns_with_null_valuse),
+                     ("Final_Columns: get_colums_names",get_colums_names),
+                     ("Model: RandomForest", RandomForestClassifier() )
                  ],
                 verbose=False
                 )
 
 pipe2 = Pipeline(memory=None,
                  steps = [
-                     ("Feature_Selection",get_drop_categorical_features),
-                     ("Null_Validate",get_drop_columns_with_null_valuse),
-                     ("Final_Columns",get_colums_names),
-                     ("RandomForest", LogisticRegression() )
+                     ("Feature_Selection: get_drop_categorical_features",get_drop_categorical_features),
+                     ("Null_Validate: get_drop_columns_with_null_valuse",get_drop_columns_with_null_valuse),
+                     ("Final_Columns: get_colums_names",get_colums_names),
+                     ("Model: LogisticRegression", LogisticRegression() )
                  ],
                 verbose=False
                 )
 
+pipe3 = Pipeline(memory=None,
+                 steps = [
+                     ("Feature_Selection:get_transform_dtype",get_transform_dtype),
+                     ("Null_Validate:get_dealing_null_values",get_dealing_null_values),
+                     ("Final_Columns:get_colums_names",get_colums_names),
+                     ("Model:RandomForest", RandomForestClassifier() )
+                 ],
+                verbose=False
+                )
+
+pipe4 = Pipeline(memory=None,
+                 steps = [
+                     ("Feature_Selection:get_transform_dtype",get_transform_dtype),
+                     ("Null_Validate:get_dealing_null_values",get_dealing_null_values),
+                     ("Final_Columns:get_colums_names",get_colums_names),
+                     ("Model:LogisticRegression", LogisticRegression() )
+                 ],
+                verbose=False
+                )
 #Salvando Scores
-modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression"],
-                    "Pipeline":[pipe1,pipe2],
+modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression","RandomForestClassifier_v2","LogisticRegression"],
+                    "Pipeline":[pipe1,pipe2,pipe3, pipe4],
                     "Score":[],
                     "Steps":[]
                     }
@@ -67,26 +87,25 @@ with open("metrics.txt", 'w') as outfile:
         lista_steps = [step for step in steps]
         modelos_testados["Steps"].append(lista_steps)
 
+
 index_max = modelos_testados["Score"].index(max(modelos_testados["Score"]))
 best_pipe = modelos_testados["Pipeline"][index_max]
 best_pipe_name = modelos_testados["Modelos"][index_max]
-
 
 
 df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
 df_modelos.to_markdown("Modelos.md",index=False)
 
 
-
-
 #Salvando submissão
 #Aqui devemos escolher nosso Pipe que iremos utilizar para nosso modelo
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
-predict_array = pipe1.predict(x_test)
+predict_array = pipe3.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
-predict_submission.to_csv("Predições/Predict1.csv",index=False)
 
-#
+predict_submission.to_csv("Predições/Predict2.csv",index=False)
+
+
 # #Plotando grafico
 # importances = pipe1.named_steps['RandomForest'].feature_importances_
 # colunas = ['Pclass', 'SibSp', 'Parch']
