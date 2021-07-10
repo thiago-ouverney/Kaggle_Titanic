@@ -64,7 +64,8 @@ with open("metrics.txt", 'w') as outfile:
         steps = modelos_testados["Pipeline"][ref].named_steps.keys()
         outfile.write(f"{nome_modelo}- Test Score: {test_score} - Steps: {steps}")
         modelos_testados["Score"].append(test_score)
-        modelos_testados["Steps"].append(steps)
+        lista_steps = [step for step in steps]
+        modelos_testados["Steps"].append(lista_steps)
 
 
 
