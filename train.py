@@ -98,7 +98,7 @@ df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_
 
 
 with open('Modelos.md', 'w') as f:
-    text = df_modelos.to_markdown(tablefmt="grid")
+    text = df_modelos.to_markdown()
     md_file = markdown.markdown(text)
     f.write(md_file)
 
