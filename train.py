@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
-
+import markdown
 #Model_Selection
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
 from sklearn.linear_model import LogisticRegression
@@ -94,8 +94,13 @@ best_pipe_name = modelos_testados["Modelos"][index_max]
 
 
 df_modelos = pd.DataFrame({"Model":modelos_testados["Modelos"], "Score":modelos_testados["Score"], "Steps":modelos_testados["Steps"]})
-df_modelos.to_markdown("Modelos.md",index=False)
 
+
+
+with open('Modelos.md', 'w') as f:
+    text = df_modelos.to_markdown(tablefmt="grid")
+    md_file = markdown.markdown(text)
+    f.write(md_file)
 
 #Salvando submissão
 #Aqui devemos escolher nosso Pipe que iremos utilizar para nosso modelo
