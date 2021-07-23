@@ -31,18 +31,24 @@ pipe_RF = Pipeline(memory=None,
                      ("Feature_Selection:get_transform_dtype",get_transform_dtype),
                      ("Null_Validate:get_dealing_null_values",get_dealing_null_values),
                      ("Final_Columns:get_colums_names",get_colums_names),
-                     ("ModelRF", RandomForestClassifier(random_state=seed) )
+                     ("RandomForest", RandomForestClassifier(random_state=seed) )
                  ],
                 verbose=False
                 )
 
 RF_params = {
     'RandomForest__criterion': ["gini", "entropy"],
-    'RandomForest__bootstrap': [True],
-    'RandomForest__min_samples_leaf': [3, 4, 5],
-    'RandomForest__n_estimators': [1000]
+    'RandomForest__bootstrap': [True,False],
+    'RandomForest__min_samples_leaf': [1,2, 5, 10],
+    'RandomForest__max_depth': [5, 8, 15, 25, 30],
+    'RandomForest__n_estimators': [100, 200, 500, 1000]
 }
 
+RF_best_params = {'RandomForest__bootstrap': [False],
+ 'RandomForest__criterion': ['gini'],
+ 'RandomForest__max_depth': [25],
+ 'RandomForest__min_samples_leaf': [10],
+ 'RandomForest__n_estimators': [500]}
 
 pipe_LR = Pipeline(memory=None,
                  steps = [
@@ -53,37 +59,33 @@ pipe_LR = Pipeline(memory=None,
                  ],
                 verbose=False
                 )
+
+
+
 #Salvando Scores
-modelos_testados = {"Modelos":["RandomForestClassifier","LogisticRegression"],
-                    "Pipeline":[pipe_RF,pipe_LR],
+modelos_testados = {"Modelos":["RandomForestClassifier"],
+                    "Pipeline":[pipe_RF],
                     "Score":[],
                     "Steps":[],
                     "Params":[]
                     }
 
 
-n = len(modelos_testados["Modelos"])
 with open("metrics.txt", 'w') as outfile:
-    for n in range(n):
-        if str(modelos_testados["Pipeline"][n]).startswith("RandomForestClassifier"):
-            pipe = modelos_testados["Pipeline"][n].fit(x_train,y_train)
-            clf = GridSearchCV(pipe, RF_params)
-            clf.fit(x_train, y_train)
-            test_score = clf.score(x_val, y_val)
-            steps = clf.estimator.named_steps.keys()
-            params = clf.best_params_
+    pipe = modelos_testados["Pipeline"][0]
+    clf = GridSearchCV(pipe, RF_best_params,verbose=3,cv=5)
+    clf.fit(x_train, y_train)
 
-        else:
-            modelos_testados["Pipeline"][n].fit(x_train, y_train)
-            test_score = modelos_testados["Pipeline"][n].score(x_val,y_val)
-            steps = modelos_testados["Pipeline"][n].named_steps.keys()
 
-        nome_modelo = modelos_testados["Modelos"][n]
-        outfile.write(f"{nome_modelo}- Test Score: {test_score} - Steps: {steps}")
+    test_score = clf.score(x_val, y_val)
+    steps = clf.estimator.named_steps.keys()
+    params = clf.best_params_
+    nome_modelo = "RandomForestClassifier"
+    outfile.write(f"{nome_modelo}- Test Score: {test_score} - Steps: {steps}")
 
-        modelos_testados["Score"].append(test_score)
-        lista_steps = [step for step in steps]
-        modelos_testados["Steps"].append(lista_steps)
+    modelos_testados["Score"].append(test_score)
+    lista_steps = [step for step in steps]
+    modelos_testados["Steps"].append(lista_steps)
 
 
 
@@ -94,17 +96,13 @@ df_modelos.to_markdown("Modelos.md",index=False)
 
 
 #Salvando submissão com Max Score dentre nossos pipelines
-index_max = modelos_testados["Score"].index(max(modelos_testados["Score"]))
-best_pipe = modelos_testados["Pipeline"][index_max]
-best_pipe_name = modelos_testados["Modelos"][index_max]
-
 x_test = pd.read_csv("Dados/test.csv",index_col = 0)
-predict_array = best_pipe.predict(x_test)
+predict_array = clf.predict(x_test)
 predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
 
 predict_submission.to_csv("Predições/Predict2.csv",index=False)
 
-print(df_modelos.head())
+print(df_modelos.Score)
 print("FINALIZADO!!!")
 
 
