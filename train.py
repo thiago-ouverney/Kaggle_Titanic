@@ -20,12 +20,6 @@ y = df.Survived
 seed = 0
 
 
-x_train, x_val, y_train, y_val = train_test_split(x,y,
-                                                    test_size = 0.3,
-                                                    random_state = seed)
-
-
-
 pipe_RF = Pipeline(memory=None,
                  steps = [
                      ("Feature_Selection:get_transform_dtype",get_transform_dtype),
@@ -37,18 +31,18 @@ pipe_RF = Pipeline(memory=None,
                 )
 
 RF_params = {
-    'RandomForest__criterion': ["gini", "entropy"],
+    'RandomForest__criterion': ["gini"],
     'RandomForest__bootstrap': [True,False],
-    'RandomForest__min_samples_leaf': [1,2, 5, 10],
-    'RandomForest__max_depth': [5, 8, 15, 25, 30],
-    'RandomForest__n_estimators': [100, 200, 500, 1000]
+    'RandomForest__min_samples_leaf': [3,5, 10],
+    'RandomForest__max_depth': [15,20, 25,27, 30],
+    'RandomForest__n_estimators': [200, 500,700]
 }
 
 RF_best_params = {'RandomForest__bootstrap': [False],
  'RandomForest__criterion': ['gini'],
- 'RandomForest__max_depth': [25],
- 'RandomForest__min_samples_leaf': [10],
- 'RandomForest__n_estimators': [500]}
+ 'RandomForest__max_depth': [15],
+ 'RandomForest__min_samples_leaf': [3],
+ 'RandomForest__n_estimators': [200]}
 
 pipe_LR = Pipeline(memory=None,
                  steps = [
@@ -74,10 +68,8 @@ modelos_testados = {"Modelos":["RandomForestClassifier"],
 with open("metrics.txt", 'w') as outfile:
     pipe = modelos_testados["Pipeline"][0]
     clf = GridSearchCV(pipe, RF_best_params,verbose=3,cv=5)
-    clf.fit(x_train, y_train)
-
-
-    test_score = clf.score(x_val, y_val)
+    clf.fit(x, y)
+    test_score = clf.best_score_
     steps = clf.estimator.named_steps.keys()
     params = clf.best_params_
     nome_modelo = "RandomForestClassifier"
