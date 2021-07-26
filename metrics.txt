@@ -1,1 +1,0 @@
-RandomForestClassifier- Test Score: 0.8373171803402173 - Steps: dict_keys(['Feature_Selection:get_transform_dtype', 'Null_Validate:get_dealing_null_values', 'Final_Columns:get_colums_names', 'RandomForest'])
