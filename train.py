@@ -7,9 +7,26 @@ from sklearn.ensemble import RandomForestClassifier
 import warnings
 warnings.filterwarnings("ignore")
 
-from Pipeline import *
+import Pipeline
 
+################# PARAMETROS #################
+RF_params = {
+   # 'Dtype_Columns__kw_args': [ {'teste': "ok"} ],
+    'RandomForest__criterion': ["gini"],
+    'RandomForest__bootstrap': [True,False],
+    'RandomForest__min_samples_leaf': [2,3,5, 10],
+    'RandomForest__max_depth': [3,8,10,15, 25, 30],
+    'RandomForest__n_estimators': [100,200,300, 500]
+}
+RF_best_params = {
+ #'Dtype_Columns__kw_args': [ {'teste': "ok"} ],  #Aqui conseguimos colocar usando __kw_args, argumentos proprios
+  'RandomForest__bootstrap': [False],
+ 'RandomForest__criterion': ['gini'],
+ 'RandomForest__max_depth': [15],
+ 'RandomForest__min_samples_leaf': [3],
+ 'RandomForest__n_estimators': [200]}
 
+################# DATASET #################
 
 df = pd.read_csv("Dados/train.csv",index_col=0)
 x = df.drop("Survived",axis=1).copy()
@@ -17,30 +34,7 @@ y = df.Survived
 seed = 0
 
 
-pipe_RF = Pipeline(memory=None,
-                 steps = [
-                     ("Dtype_Columns",get_transform_dtype_new),
-                     ("Null_Validate:get_dealing_null_values",get_dealing_null_values),
-                     ("RandomForest", RandomForestClassifier(random_state=seed) )
-                 ],
-                verbose=False
-                )
 
-RF_params = {
-    'Dtype_Columns__kw_args': [ {'teste': "ok"} ],
-    'RandomForest__criterion': ["gini"],
-    'RandomForest__bootstrap': [True,False],
-    'RandomForest__min_samples_leaf': [3,5, 10],
-    'RandomForest__max_depth': [15,20, 25,27, 30],
-    'RandomForest__n_estimators': [200, 500,700]
-}
-RF_best_params = {
- 'Dtype_Columns__kw_args': [ {'teste': "ok"} ],  #Aqui conseguimos colocar usando __kw_args, argumentos proprios
-  'RandomForest__bootstrap': [False],
- 'RandomForest__criterion': ['gini'],
- 'RandomForest__max_depth': [15],
- 'RandomForest__min_samples_leaf': [3],
- 'RandomForest__n_estimators': [200]}
 
 #Salvando Scores
 modelos_testados = {"Modelos":[],
@@ -66,16 +60,16 @@ def saving_predict(X,y,folds,seed,pipe,nome_modelo,grid_params = ""):
 
     else:
         pipe_analise = pipe
-        pipe_analise.fit(X_train,y_train)
         cv = KFold(n_splits=(folds))
-        scores = cross_val_score(pipe, X_train, y_train, cv=cv)
+        scores = cross_val_score(pipe_analise, X_train, y_train, cv=cv)
         validation_score = sum(scores)/len(scores)
 
         modelos_testados["Params"].append("To Do")
-        steps = pipe.named_steps.keys()
-
+        steps = pipe_analise.named_steps.keys()
+        pipe_analise.fit(X_train,y_train)
 
     #Saving test metric
+
     test_score = pipe_analise.score(X_test,y_test)
     lista_steps = [step for step in steps]
 
@@ -90,9 +84,8 @@ x_test = pd.read_csv("Dados/test.csv",index_col = 0)
 
 
 # Saving my predictions
-pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = pipe_RF,grid_params = RF_best_params, nome_modelo= "RF Parametros Otimizados")
-#saving_predict(x,y,folds= 5, seed = seed, pipe = pipe_RF,grid_params = RF_params, nome_modelo= "RF Parametros a se otimizar")
-pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = pipe_RF, nome_modelo= "RF Cross Validation Baseline")
+pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, nome_modelo= "Random Forest Cross Validation Baseline")
+pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_GB, nome_modelo= "Gradient Boosting Cross Validation Baseline")
 
 
 #Saving Final Dataframe
@@ -100,12 +93,10 @@ df_modelos = pd.DataFrame(modelos_testados)
 df_modelos.to_markdown("Modelos.md",index=False)
 
 
-#Salvando submissão com Max Score dentre nossos pipelines
-
-#predict_array = clf.predict(x_test)
-#predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
-
-#predict_submission.to_csv("Predições/Predict2.csv",index=False)
+#Salvando submissão
+predict_array = pipe_2.predict(x_test)
+predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
+predict_submission.to_csv("Predições/Predict4.csv",index=False)
 
 
 

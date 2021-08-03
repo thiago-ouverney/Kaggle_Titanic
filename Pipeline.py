@@ -1,84 +1,71 @@
-import pandas as pd
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import FunctionTransformer
-
-#Model_Selection
+import pandas as pd, numpy as np
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
+from sklearn.compose import ColumnTransformer,make_column_transformer,make_column_selector
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
-
-from sklearn.ensemble import RandomForestClassifier
-
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 import warnings
 warnings.filterwarnings("ignore")
+seed = 0
 
+################# PIPELINE NOVO #################
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-def drop_columns_with_null_valuse(df):
-    df.dropna(axis=1,inplace=True)
-    try:
-        df.drop("Fare",axis=1,inplace=True)
-    except:
-        pass
+def name_information(df):
+    df["Name"] = df["Name"].str.replace(",|\.|\(|\)|\"|Mrs|Mr|Miss", "", regex=True)
+    df["Name"] = df["Name"].str.replace("\W[A-Z]\W", "", regex=True)
+    df["Name"] = df["Name"].str.replace("\W[A-Z]$", "", regex=True)
+    df["Name"] = df["Name"].str.replace("  ", " ", regex=True)
+    df["Name_List"] = df["Name"].apply(lambda x: x.split(" "))
+    df["Last_Name"] = df["Name_List"].apply(lambda x: x[-1])
+    df.drop(["Name", "Name_List"], axis=1, inplace=True)
     return df
+get_name_inf = FunctionTransformer(name_information,validate=False)
 
-def drop_categorical_features(df):
-    df = df.select_dtypes(exclude="object")
+def cabin_information(df):
+    df['Cabin'].fillna("S",inplace=True)
+    df['Category_Cabin'] = df['Cabin'].apply(lambda x: x[0])
+    df['Size_Cabin'] = df['Cabin'].apply(lambda x: len(x.split(" ")))
+    df.drop("Cabin",axis=1,inplace=True)
     return df
-
-def saving_columns(df):
-    global colunas
-    colunas= df.columns
-    return df
-    
-# function to be applied in each row of the "Sex" column
-# and change object data to categorical (1 for male, 0 for female"
-def sex_to_binary(n):
-    if n == 'male':
-        return 1
-    elif n == 'female':
-        return 0
+get_cabin_inf = FunctionTransformer(cabin_information,validate=False)
 
 
-def drop_columns_with_null_valuse(df):
-    df.dropna(axis=1, inplace=True)
-    try:
-        df.drop("Fare", axis=1, inplace=True)
-    except:
-        pass
-    return df
+#pipeline for columns transformations on categorical features
+cat_preprocessing = make_pipeline( SimpleImputer(missing_values=np.nan, strategy='most_frequent'),
+                                    OneHotEncoder(handle_unknown='ignore')  #Só vai fazer no test data o q já fez no train ou em inf no test
+                                   )
+num_preprocessing = make_pipeline( SimpleImputer(missing_values=np.nan, strategy='median'))
 
 
-def drop_categorical_features(df):
-    df = df.select_dtypes(exclude="object")
-    return df
+pipe_preprosseging = ColumnTransformer( [("numeric_transf", num_preprocessing, make_column_selector(dtype_exclude=object)),    # NOME-PROCESSSO  $$$$$ TRANFORMACAO A SER APLCIADA $$$$$ COLUNAS QUE VAO SOFRER A TRANF.
+                                        ("categorical_transf", cat_preprocessing, make_column_selector(dtype_include=object))]
+                                        )
 
 
-def one_hot_encoder(df,columns):
-    for column in columns:
-        df_aux = pd.get_dummies(df[column],prefix=column)
-        df = df.join(df_aux)
-        df.drop(column,axis=1,inplace=True)
-    return df
+pipe_RF = Pipeline(memory=None,
+                      steps = [
+                          ("FE_Name",get_name_inf),
+                          ("FE_Cabin" , get_cabin_inf),
+                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
+                          ("RandomForest", RandomForestClassifier(random_state=seed) )
+                      ]
+                      )
 
-# dealing with missing numbers
-def dealing_null_values(df):
-    df['Age'] = df['Age'].fillna(-1)
-    return df
+pipe_RF_ = Pipeline(memory=None,
+                      steps = [
+                         # ("FE_Name",get_name_inf),
+                          ("FE_Cabin" , get_cabin_inf),
+                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
+                          ("RandomForest", RandomForestClassifier(random_state=seed) )
+                      ]
+                      )
 
-# transform  all columns necessary
-def transform_dtype_new(df,teste="ok"):
-    df = one_hot_encoder(df, ["Sex","Pclass","Embarked"])
-    df.drop(['Name' ,'Ticket' ,'Cabin'], axis=1, inplace=True)
-    if teste != None:
-        df["Fare"] = df["Fare"].fillna(0)
-
-    return df
-
-get_drop_columns_with_null_valuse = FunctionTransformer(drop_columns_with_null_valuse, validate=False)
-get_drop_categorical_features = FunctionTransformer(drop_categorical_features, validate=False)
-
-get_dealing_null_values = FunctionTransformer(dealing_null_values,validate=False)
-get_transform_dtype_new = FunctionTransformer(transform_dtype_new,validate=False)
-
-
+pipe_GB = Pipeline(memory=None,
+                      steps = [
+                          ("FE_Name",get_name_inf),
+                          ("FE_Cabin" , get_cabin_inf),
+                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
+                          ("Gradient_Boosting", GradientBoostingClassifier(random_state=seed) )
+                      ]
+                      )
