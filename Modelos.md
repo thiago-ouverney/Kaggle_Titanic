@@ -1,0 +1,5 @@
+| Modelos                                      |   Score_Validation |   Score_Test | Steps                                                                                  | Params   |
+|:---------------------------------------------|-------------------:|-------------:|:---------------------------------------------------------------------------------------|:---------|
+| Random Forest Cross Validation Baseline      |           0.807604 |     0.843575 | ['FE_Name', 'FE_Cabin', 'Fixing_Missing_Values_One_Hot_Enconder', 'RandomForest']      | To Do    |
+| Random Forest Cross Validation Baseline TEST |           0.809012 |     0.843575 | ['FE_Cabin', 'Fixing_Missing_Values_One_Hot_Enconder', 'RandomForest']                 | To Do    |
+| Gradient Boosting Cross Validation Baseline  |           0.807594 |     0.810056 | ['FE_Name', 'FE_Cabin', 'Fixing_Missing_Values_One_Hot_Enconder', 'Gradient_Boosting'] | To Do    |
