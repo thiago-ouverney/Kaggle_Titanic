@@ -52,15 +52,6 @@ pipe_RF = Pipeline(memory=None,
                       ]
                       )
 
-pipe_RF_ = Pipeline(memory=None,
-                      steps = [
-                         # ("FE_Name",get_name_inf),
-                          ("FE_Cabin" , get_cabin_inf),
-                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
-                          ("RandomForest", RandomForestClassifier(random_state=seed) )
-                      ]
-                      )
-
 pipe_GB = Pipeline(memory=None,
                       steps = [
                           ("FE_Name",get_name_inf),
