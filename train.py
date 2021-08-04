@@ -88,17 +88,20 @@ pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, nome
 pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_GB, nome_modelo= "Gradient Boosting Cross Validation Baseline")
 
 
+pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, grid_params= RF_best_params, nome_modelo = "Random Forest Best Params")
+
 #Saving Final Dataframe
 df_modelos = pd.DataFrame(modelos_testados)
 df_modelos.to_markdown("Modelos.md",index=False)
 
 
 #Salvando submissão
-predict_array = pipe_2.predict(x_test)
-predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
-predict_submission.to_csv("Predições/Predict4.csv",index=False)
+def saving_prediction(pipe,x_test,local = "Predições/Predict4.csv"):
+    predict_array = pipe.predict(x_test)
+    predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
+    predict_submission.to_csv(local,index=False)
 
-
+saving_prediction(pipe_1,x_test)
 
 
 
