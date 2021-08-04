@@ -1,16 +1,15 @@
 import pandas as pd, numpy as np
+# PIPELINE
+from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
-from sklearn.compose import ColumnTransformer,make_column_transformer,make_column_selector
+from sklearn.compose import ColumnTransformer,make_column_selector
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-
-from xgboost import XGBClassifier
 import warnings
-
-from sklearn.base import BaseEstimator
-
+# MODELS
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from xgboost import XGBClassifier
+#VARIABLES
 warnings.filterwarnings("ignore")
 seed = 0
 
@@ -42,16 +41,24 @@ def ticket_information(df):
 
 class FeatureEngPipe(BaseEstimator):
 
-    def __init__(self):
+    def __init__(self,name=True,cabin=True,ticket=True):
+        self.name = name
+        self.cabin = cabin
+        self.ticket = ticket
         pass
 
     def fit(self, documents, y=None):
         return self
 
     def transform(self, x_dataset):
-        x_dataset = name_information(x_dataset)
-        x_dataset = cabin_information(x_dataset)
-        x_dataset = ticket_information(x_dataset)
+        if self.name:
+            x_dataset = name_information(x_dataset)
+
+        if self.cabin:
+            x_dataset = cabin_information(x_dataset)
+
+        if self.ticket:
+            x_dataset = ticket_information(x_dataset)
         return x_dataset
 
 #pipeline for columns transformations on categorical features
@@ -65,7 +72,7 @@ pipe_preprosseging = ColumnTransformer( [("numeric_transf", num_preprocessing, m
 
 pipe_RF = Pipeline(memory=None,
                       steps = [
-                          ("FE_",FeatureEngPipe()),
+                          ("FeatureEng",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
                           ("RandomForest", RandomForestClassifier(random_state=seed) )
                       ]
@@ -73,7 +80,7 @@ pipe_RF = Pipeline(memory=None,
 
 pipe_GB = Pipeline(memory=None,
                       steps = [
-                          ("FE_",FeatureEngPipe()),
+                          ("FeatureEng",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
                           ("Gradient_Boosting", GradientBoostingClassifier(random_state=seed) )
                       ]
@@ -81,8 +88,8 @@ pipe_GB = Pipeline(memory=None,
 
 pipe_XGBoost = Pipeline(memory=None,
                       steps = [
-                          ("FE_",FeatureEngPipe()),
+                          ("FeatureEng",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
-                          ("XGBoost", XGBClassifier(random_state=seed) )
+                          ("XGBoost", XGBClassifier(random_state=seed,eval_metric='error'))
                       ]
                       )
