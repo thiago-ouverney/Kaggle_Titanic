@@ -5,6 +5,8 @@ from sklearn.compose import ColumnTransformer,make_column_transformer,make_colum
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+
+from xgboost import XGBClassifier
 import warnings
 
 from sklearn.base import BaseEstimator
@@ -33,9 +35,6 @@ def cabin_information(df):
     return df
 
 def ticket_information(df):
-    #df['Cabin'].fillna("S",inplace=True)
-    #df['Category_Cabin'] = df['Cabin'].apply(lambda x: x[0])
-    #df['Size_Cabin'] = df['Cabin'].apply(lambda x: len(x.split(" ")))
     #df.drop("Ticket",axis=1,inplace=True)
     return df
 
@@ -77,5 +76,13 @@ pipe_GB = Pipeline(memory=None,
                           ("FE_",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
                           ("Gradient_Boosting", GradientBoostingClassifier(random_state=seed) )
+                      ]
+                      )
+
+pipe_XGBoost = Pipeline(memory=None,
+                      steps = [
+                          ("FE_",FeatureEngPipe()),
+                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
+                          ("XGBoost", XGBClassifier(random_state=seed) )
                       ]
                       )

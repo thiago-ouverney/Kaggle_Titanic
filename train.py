@@ -11,7 +11,6 @@ import Pipeline
 
 ################# PARAMETROS #################
 RF_params = {
-   # 'Dtype_Columns__kw_args': [ {'teste': "ok"} ],
     'RandomForest__criterion': ["gini"],
     'RandomForest__bootstrap': [True,False],
     'RandomForest__min_samples_leaf': [2,3,5, 10],
@@ -19,13 +18,16 @@ RF_params = {
     'RandomForest__n_estimators': [100,200,300, 500]
 }
 RF_best_params = {
- #'Dtype_Columns__kw_args': [ {'teste': "ok"} ],  #Aqui conseguimos colocar usando __kw_args, argumentos proprios
   'RandomForest__bootstrap': [False],
  'RandomForest__criterion': ['gini'],
  'RandomForest__max_depth': [15],
  'RandomForest__min_samples_leaf': [3],
  'RandomForest__n_estimators': [200]}
 
+XGBoost_params = {
+    'XGBoost__learning_rate': [0.01,0.001,0.005]
+
+}
 ################# DATASET #################
 
 df = pd.read_csv("Dados/train.csv",index_col=0)
@@ -86,9 +88,10 @@ x_test = pd.read_csv("Dados/test.csv",index_col = 0)
 # Saving my predictions
 pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, nome_modelo= "Random Forest Cross Validation Baseline")
 pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_GB, nome_modelo= "Gradient Boosting Cross Validation Baseline")
+pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost, nome_modelo= "XGBoost Cross Validation Baseline")
 
 
-pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, grid_params= RF_best_params, nome_modelo = "Random Forest Best Params")
+#pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, grid_params= RF_best_params, nome_modelo = "Random Forest Best Params")
 
 #Saving Final Dataframe
 df_modelos = pd.DataFrame(modelos_testados)
@@ -96,12 +99,13 @@ df_modelos.to_markdown("Modelos.md",index=False)
 
 
 #Salvando submissão
-def saving_prediction(pipe,x_test,local = "Predições/Predict4.csv"):
+def saving_prediction(pipe,x,local = "Predições/Predict4.csv"):
+    x_test = x.copy()
     predict_array = pipe.predict(x_test)
     predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
     predict_submission.to_csv(local,index=False)
 
-saving_prediction(pipe_1,x_test)
+saving_prediction(pipe_3,x_test)
 
 
 
