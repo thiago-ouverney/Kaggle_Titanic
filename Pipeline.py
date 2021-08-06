@@ -16,7 +16,13 @@ seed = 42
 
 ################# PIPELINE DADOS #################
 
-def name_information(df):
+def preprosseging_dtypes(df2):
+    df = df2.copy()
+    df.Pclass = df.Pclass.astype("object")
+    return df
+
+def name_information(df2):
+    df = df2.copy()
     df["Name_aux"] = df["Name"]
     df["Name_aux"] = df["Name_aux"].str.replace(",|\.|\(|\)|\"|Mrs|Mr|Miss", "", regex=True)
     df["Name_aux"] = df["Name_aux"].str.replace("\W[A-Z]\W", "", regex=True)
@@ -27,14 +33,15 @@ def name_information(df):
     df.drop(["Name","Name_List"], axis=1, inplace=True)
     return df
 
-def cabin_information(df):
+def cabin_information(df2):
+    df = df2.copy()
     df['Cabin'].fillna("S",inplace=True)
     df['Category_Cabin'] = df['Cabin'].apply(lambda x: x[0])
     df['Size_Cabin'] = df['Cabin'].apply(lambda x: len(x.split(" ")))
     df.drop("Cabin",axis=1,inplace=True)
     return df
-
-def ticket_information(df):
+def ticket_information(df2):
+    df = df2.copy()
     #df.drop("Ticket",axis=1,inplace=True)
     return df
 
@@ -42,16 +49,20 @@ def ticket_information(df):
 
 class FeatureEngPipe(BaseEstimator):
 
-    def __init__(self,name=True,cabin=True,ticket=True):
+    def __init__(self,name=True,cabin=True,ticket=True, preprop=True):
         self.name = name
         self.cabin = cabin
         self.ticket = ticket
+        self.preprop = preprop
         pass
 
     def fit(self, documents, y=None):
         return self
 
     def transform(self, x_dataset):
+        if self.preprop:
+            x_dataset= preprosseging_dtypes(x_dataset)
+
         if self.name:
             x_dataset = name_information(x_dataset)
 
@@ -112,6 +123,8 @@ pipe_VotingClassifier_Soft = Pipeline(memory=None,
                           ("Voting", VotingClassifier(voting='soft',weights= [1,2,3] ,estimators=[('lr', clf1), ('rf', clf2), ('gbc', clf3)]))
                       ]
                       )
+
+
 pipe_VotingClassifier_Hard = Pipeline(memory=None,
                       steps = [
                           ("FeatureEng",FeatureEngPipe()),

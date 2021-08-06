@@ -4,3 +4,4 @@
 | Hard Voting Classifier (LR, RF, GB)          |           0.817394 |     0.810056 | ['FeatureEng', 'Fixing_Missing_Values_One_Hot_Enconder', 'Voting']            | To Do    |
 | Gradient Boosting Baseline                   |           0.817404 |     0.810056 | ['FeatureEng', 'Fixing_Missing_Values_One_Hot_Enconder', 'Gradient_Boosting'] | To Do    |
 | XGBoost Cross Baseline                       |           0.804846 |     0.798883 | ['FeatureEng', 'Fixing_Missing_Values_One_Hot_Enconder', 'XGBoost']           | To Do    |
+| Soft Voting Classifier (1: LR, 2: RF, 3: GB) |           0.824426 |     0.815642 | ['FeatureEng', 'Fixing_Missing_Values_One_Hot_Enconder', 'Voting']            | To Do    |
