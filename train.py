@@ -89,10 +89,12 @@ x_test = pd.read_csv("Dados/test.csv",index_col = 0)
 
 
 # Saving my predictions
-pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Soft, nome_modelo= "Soft Voting Classifier (1: LR, 2: RF, 3: GB)")
-pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Hard, nome_modelo= "Hard Voting Classifier (LR, RF, GB)") # OUR BEST ENTRY
+pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Soft, nome_modelo= "Soft Voting Classifier (1: LR, 2: RF, 3: GB)") # OUR BEST ENTRY
+pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Hard, nome_modelo= "Hard Voting Classifier (LR, RF, GB)")
 pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_GB, nome_modelo= "Gradient Boosting Baseline")
 pipe_4 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost,  nome_modelo= "XGBoost Cross Baseline")
+pipe_5 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Hard_2, nome_modelo= "Hard Voting Classifier (LR, RF, GB) V2")
+
 #pipe_4 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost, grid_params= XGBoost_params, nome_modelo= "XGBoost Teste Pipeline", verbose = 3)
 
 
@@ -110,7 +112,7 @@ def saving_prediction(pipe,x,local = "Predições/Predict5.csv"):
     predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
     predict_submission.to_csv(local,index=False)
 
-#saving_prediction(pipe_1,x_test)
+saving_prediction(pipe_5,x_test)
 
 
 
