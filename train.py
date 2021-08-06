@@ -27,8 +27,9 @@ RF_best_params = {
 XGBoost_params = {
     "FeatureEng__name": [True,False],
     "FeatureEng__cabin": [True,False],
-    "FeatureEng__ticket": [True,False],
-    'XGBoost__learning_rate': [0.01, 0.001, 0.005]
+   # "FeatureEng__ticket": [True,False],
+    'XGBoost__eta': [0.2, 0.3, 0.4],
+    'XGBoost__learning_rate': [0.02,0.01]
 
 }
 ################# DATASET #################
@@ -36,7 +37,7 @@ XGBoost_params = {
 df = pd.read_csv("Dados/train.csv",index_col=0)
 x = df.drop("Survived",axis=1).copy()
 y = df.Survived
-seed = 0
+seed = 42
 
 
 
@@ -55,8 +56,9 @@ def saving_predict(X,y,folds,seed,pipe,nome_modelo,grid_params = "",verbose = 1)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=(1 / folds), random_state=seed)
 
+    cv = KFold(n_splits=(folds))
     if grid_params:
-        pipe_analise = GridSearchCV(pipe, grid_params, verbose= verbose,cv=folds)
+        pipe_analise = GridSearchCV(pipe, grid_params, verbose= verbose,cv=cv)
         pipe_analise.fit(X_train, y_train)
         steps = pipe_analise.estimator.named_steps.keys()
         validation_score = pipe_analise.best_score_
@@ -65,10 +67,8 @@ def saving_predict(X,y,folds,seed,pipe,nome_modelo,grid_params = "",verbose = 1)
 
     else:
         pipe_analise = pipe
-        cv = KFold(n_splits=(folds))
         scores = cross_val_score(pipe_analise, X_train, y_train, cv=cv)
         validation_score = sum(scores)/len(scores)
-
         modelos_testados["Params"].append("To Do")
         steps = pipe_analise.named_steps.keys()
         pipe_analise.fit(X_train,y_train)
@@ -89,10 +89,11 @@ x_test = pd.read_csv("Dados/test.csv",index_col = 0)
 
 
 # Saving my predictions
-pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, nome_modelo= "Random Forest Cross Validation")
-pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_GB, nome_modelo= "Gradient Boosting Cross Validation")
-pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost,  nome_modelo= "XGBoost Cross Validation")
-pipe_4 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost, grid_params= XGBoost_params, nome_modelo= "XGBoost Teste Pipeline", verbose = 3)
+pipe_1 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Soft, nome_modelo= "Soft Voting Classifier (1: LR, 2: RF, 3: GB)")
+pipe_2 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_VotingClassifier_Hard, nome_modelo= "Hard Voting Classifier (LR, RF, GB)") # OUR BEST ENTRY
+pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_GB, nome_modelo= "Gradient Boosting Baseline")
+pipe_4 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost,  nome_modelo= "XGBoost Cross Baseline")
+#pipe_4 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_XGBoost, grid_params= XGBoost_params, nome_modelo= "XGBoost Teste Pipeline", verbose = 3)
 
 
 #pipe_3 = saving_predict(x,y,folds= 5, seed = seed, pipe = Pipeline.pipe_RF, grid_params= RF_best_params, nome_modelo = "Random Forest Best Params")
@@ -103,13 +104,13 @@ df_modelos.to_markdown("Modelos.md",index=False)
 
 
 #Salvando submissão
-def saving_prediction(pipe,x,local = "Predições/Predict4.csv"):
+def saving_prediction(pipe,x,local = "Predições/Predict5.csv"):
     x_test = x.copy()
     predict_array = pipe.predict(x_test)
     predict_submission = pd.DataFrame({"PassengerId":x_test.index,"Survived":predict_array})
     predict_submission.to_csv(local,index=False)
 
-#saving_prediction(pipe_3,x_test)
+#saving_prediction(pipe_1,x_test)
 
 
 

@@ -1,17 +1,18 @@
 import pandas as pd, numpy as np
-# PIPELINE
+import warnings
+
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.preprocessing import FunctionTransformer, OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer,make_column_selector
 from sklearn.impute import SimpleImputer
-import warnings
-# MODELS
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
+
 #VARIABLES
 warnings.filterwarnings("ignore")
-seed = 0
+seed = 42
 
 ################# PIPELINE DADOS #################
 
@@ -70,11 +71,20 @@ pipe_preprosseging = ColumnTransformer( [("numeric_transf", num_preprocessing, m
                                         ("categorical_transf", cat_preprocessing, make_column_selector(dtype_include=object))])
 
 
+#### MODELS
+clf1 = LogisticRegression(random_state=seed)
+clf2 = RandomForestClassifier(random_state=seed)
+clf3 = GradientBoostingClassifier(random_state=seed)
+clf4 = XGBClassifier(random_state=seed,eval_metric='error')
+
+
+
+#### PIPELINES
 pipe_RF = Pipeline(memory=None,
                       steps = [
                           ("FeatureEng",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
-                          ("RandomForest", RandomForestClassifier(random_state=seed) )
+                          ("RandomForest", clf2 )
                       ]
                       )
 
@@ -82,7 +92,7 @@ pipe_GB = Pipeline(memory=None,
                       steps = [
                           ("FeatureEng",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
-                          ("Gradient_Boosting", GradientBoostingClassifier(random_state=seed) )
+                          ("Gradient_Boosting", clf3 )
                       ]
                       )
 
@@ -90,6 +100,22 @@ pipe_XGBoost = Pipeline(memory=None,
                       steps = [
                           ("FeatureEng",FeatureEngPipe()),
                           ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
-                          ("XGBoost", XGBClassifier(random_state=seed,eval_metric='error'))
+                          ("XGBoost", clf4)
+                      ]
+                      )
+
+
+pipe_VotingClassifier_Soft = Pipeline(memory=None,
+                      steps = [
+                          ("FeatureEng",FeatureEngPipe()),
+                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
+                          ("Voting", VotingClassifier(voting='soft',weights= [1,2,3] ,estimators=[('lr', clf1), ('rf', clf2), ('gbc', clf3)]))
+                      ]
+                      )
+pipe_VotingClassifier_Hard = Pipeline(memory=None,
+                      steps = [
+                          ("FeatureEng",FeatureEngPipe()),
+                          ("Fixing_Missing_Values_One_Hot_Enconder", pipe_preprosseging),
+                          ("Voting", VotingClassifier(voting='hard',estimators=[('lr', clf1), ('rf', clf2), ('gbc', clf3)]))
                       ]
                       )
